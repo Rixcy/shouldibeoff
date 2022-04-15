@@ -6,8 +6,9 @@ export const container = style({
   alignItems: 'center',
   justifyContent: 'center',
   height: '100vh',
-  backgroundColor: '#fafafa',
+  backgroundColor: 'rgb(241 245 249)',
   width: '100%',
+  textAlign: 'center',
 })
 
 export const answer = style({

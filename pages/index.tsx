@@ -1,12 +1,17 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import { useQuery } from 'react-query'
+import { useCountryContext } from '../components/country-context'
+import { CountrySelect } from '../components/country-select'
 import * as s from '../styles/home.css'
 
 const Home: NextPage = () => {
+  const { selectedCountry } = useCountryContext()
+
   const { isLoading, error, data } = useQuery<{ answer: 'yes' | 'no' }, Error>(
-    ['answer'],
-    () => fetch('/api/answer').then((res) => res.json())
+    ['answer', selectedCountry],
+    () =>
+      fetch(`/api/answer?dataset=${selectedCountry}`).then((res) => res.json())
   )
 
   return (
@@ -20,10 +25,13 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className={s.answer}>
-        {isLoading && 'Loading...'}
-        {data && data.answer}
-        {error && `An error has occurred: ${error.message}`}
+      <main>
+        <div className={s.answer}>
+          {isLoading && '...'}
+          {data && data.answer}
+          {error && `An error has occurred: ${error.message}`}
+        </div>
+        <CountrySelect />
       </main>
     </div>
   )
