@@ -9,14 +9,10 @@ const Home: NextPage = () => {
     () => fetch('/api/answer').then((res) => res.json())
   )
 
-  if (isLoading) return <>Loading...</>
-
-  if (error) return <>An error has occurred: {error.message}</>
-
   return (
     <div className={s.container}>
       <Head>
-        <title>Should I be off?</title>
+        <title>Should I be off? {data?.answer}</title>
         <meta
           name="description"
           content="Ever wondered if you should be off work today? Is it Good Friday, is it Christmas? This simple site will tell you."
@@ -24,7 +20,11 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className={s.answer}>{data.answer}</main>
+      <main className={s.answer}>
+        {isLoading && 'Loading...'}
+        {data && data.answer}
+        {error && `An error has occurred: ${error.message}`}
+      </main>
     </div>
   )
 }
