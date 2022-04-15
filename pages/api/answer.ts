@@ -2,9 +2,13 @@
 import { DateTime } from 'luxon'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { z } from 'zod'
+import { countries } from '../../utils/countries'
 
-type Data = {
-  answer: 'yes' | 'no'
+export type CountryResults = {
+  england: boolean
+  wales: boolean
+  scotland: boolean
+  'northern-ireland': boolean
 }
 
 type Error = {
@@ -18,18 +22,11 @@ const eventSchema = z.object({
   bunting: z.boolean(),
 })
 
-const datasetSchema = z.union([
-  z.literal('england'),
-  z.literal('wales'),
-  z.literal('scotland'),
-  z.literal('northern-ireland'),
-])
-
 const endpoint = 'https://www.gov.uk/bank-holidays.json'
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Data | Error>
+  res: NextApiResponse<CountryResults | Error>
 ) {
   if (req.method !== 'GET')
     res.status(405).json({ message: 'Method Not Allowed' })
@@ -38,44 +35,25 @@ export default async function handler(
 
   const currentDate = DateTime.now().toFormat('yyyy-LL-dd')
 
-  let dataset = 'england-and-wales'
-  if (req.query.dataset) {
-    const result = datasetSchema.safeParse(req.query.dataset)
-    if (!result.success) {
-      return res.status(422).json({
-        message:
-          'Incorrect dataset. Please choose one of england, wales, scotland or northern-ireland',
-      })
-    }
+  const results = countries.reduce((results, country) => {
+    const dataset =
+      country === 'england' || country === 'wales'
+        ? 'england-and-wales'
+        : country
+    const isBankHoliday = data[dataset].events?.some((event: unknown) => {
+      const result = eventSchema.safeParse(event)
+      if (!result.success) {
+        return res.status(500).json({
+          message:
+            "Couldn't parse Government event data. Please contact the developer",
+        })
+      }
+      return result.data.date === currentDate
+    })
+    results[country] = isBankHoliday
 
-    switch (result.data) {
-      case 'england':
-      case 'wales':
-        dataset = 'england-and-wales'
-        break
-      case 'scotland':
-        dataset = 'scotland'
-        break
-      case 'northern-ireland':
-        dataset = 'northern-ireland'
-        break
-    }
-  }
+    return results
+  }, {} as CountryResults)
 
-  const countryData = data[dataset].events
-
-  const isBankHoliday = countryData.some((event: unknown) => {
-    const result = eventSchema.safeParse(event)
-    if (!result.success) {
-      return res.status(500).json({
-        message:
-          "Couldn't parse Government event data. Please contact the developer",
-      })
-    }
-    return result.data.date === currentDate
-  })
-
-  const answer = isBankHoliday ? 'yes' : 'no'
-
-  res.status(200).json({ answer })
+  res.status(200).json(results)
 }

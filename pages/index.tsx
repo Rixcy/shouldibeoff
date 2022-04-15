@@ -1,23 +1,19 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import { useQuery } from 'react-query'
-import { useCountryContext } from '../components/country-context'
-import { CountrySelect } from '../components/country-select'
+import { CountryDisplay } from '../components/country-display'
 import * as s from '../styles/home.css'
+import { CountryResults } from './api/answer'
 
 const Home: NextPage = () => {
-  const { selectedCountry } = useCountryContext()
-
-  const { isLoading, error, data } = useQuery<{ answer: 'yes' | 'no' }, Error>(
-    ['answer', selectedCountry],
-    () =>
-      fetch(`/api/answer?dataset=${selectedCountry}`).then((res) => res.json())
+  const { error, data } = useQuery<CountryResults, Error>(['answer'], () =>
+    fetch('/api/answer').then((res) => res.json())
   )
 
   return (
     <div className={s.container}>
       <Head>
-        <title>Should I be off? {data?.answer}</title>
+        <title>Should I be off?</title>
         <meta
           name="description"
           content="Ever wondered if you should be off work today? Is it Good Friday, is it Christmas? This simple site will tell you."
@@ -26,12 +22,8 @@ const Home: NextPage = () => {
       </Head>
 
       <main>
-        <div className={s.answer}>
-          {isLoading && '...'}
-          {data && data.answer}
-          {error && `An error has occurred: ${error.message}`}
-        </div>
-        <CountrySelect />
+        {error && <div>`An error has occurred: ${error.message}`</div>}
+        <CountryDisplay data={data} />
       </main>
     </div>
   )
