@@ -1,6 +1,8 @@
-# shouldibeoff
+# [shouldibeoff](https://shouldibeoff.vercel.app)
 
-Simple site for checking if today is a bank holiday
+Simple site for checking if it's a bank holiday in the UK
+
+![](https://user-images.githubusercontent.com/11819124/163568182-a44856ef-defe-47b7-8691-efabe9b3dc8f.png)
 
 ## Running locally
 
