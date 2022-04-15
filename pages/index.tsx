@@ -18,6 +18,12 @@ const Home: NextPage = () => {
           name="description"
           content="Ever wondered if you should be off work today? Is it Good Friday, is it Christmas? This simple site will tell you."
         />
+        <meta name="og:image" content="Should I be off?" />
+        <meta
+          name="og:description"
+          content="Ever wondered if you should be off work today? Is it Good Friday, is it Christmas? This simple site will tell you."
+        />
+        <meta name="og:image" content="/ogimage.png" />
         <link
           rel="apple-touch-icon"
           sizes="180x180"
